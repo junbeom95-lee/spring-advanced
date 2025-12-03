@@ -2,7 +2,7 @@ spring:
   application:
     name: newsfeed
   config:
-    import: optional:file:.env[.properties]
+    import: optional:file:.properties[.properties]
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: ${DB_URL}
