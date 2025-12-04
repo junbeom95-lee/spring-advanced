@@ -1,6 +1,7 @@
 package org.example.expert.domain.manager.service;
 
 import org.example.expert.common.dto.AuthUser;
+import org.example.expert.common.dto.CommonResponse;
 import org.example.expert.common.exception.InvalidRequestException;
 import org.example.expert.domain.manager.dto.request.ManagerSaveRequest;
 import org.example.expert.domain.manager.dto.response.ManagerResponse;
@@ -87,9 +88,10 @@ class ManagerServiceTest {
         given(managerRepository.findByTodoIdWithUser(todoId)).willReturn(managerList);
 
         // when
-        List<ManagerResponse> managerResponses = managerService.getManagers(todoId);
+        CommonResponse<List<ManagerResponse>> response = managerService.getManagers(todoId);
 
         // then
+        List<ManagerResponse> managerResponses = response.getContent();
         assertEquals(1, managerResponses.size());
         assertEquals(mockManager.getId(), managerResponses.get(0).getId());
         assertEquals(mockManager.getUser().getEmail(), managerResponses.get(0).getUser().getEmail());
@@ -115,9 +117,10 @@ class ManagerServiceTest {
         given(managerRepository.save(any(Manager.class))).willAnswer(invocation -> invocation.getArgument(0));
 
         // when
-        ManagerSaveResponse response = managerService.saveManager(authUser, todoId, managerSaveRequest);
+        CommonResponse<ManagerSaveResponse> result = managerService.saveManager(authUser, todoId, managerSaveRequest);
 
         // then
+        ManagerSaveResponse response = result.getContent();
         assertNotNull(response);
         assertEquals(managerUser.getId(), response.getUser().getId());
         assertEquals(managerUser.getEmail(), response.getUser().getEmail());

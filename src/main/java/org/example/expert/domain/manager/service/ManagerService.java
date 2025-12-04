@@ -2,6 +2,7 @@ package org.example.expert.domain.manager.service;
 
 import lombok.RequiredArgsConstructor;
 import org.example.expert.common.dto.AuthUser;
+import org.example.expert.common.dto.CommonResponse;
 import org.example.expert.common.exception.InvalidRequestException;
 import org.example.expert.domain.manager.dto.request.ManagerSaveRequest;
 import org.example.expert.domain.manager.dto.response.ManagerResponse;
@@ -13,6 +14,7 @@ import org.example.expert.domain.todo.repository.TodoRepository;
 import org.example.expert.domain.user.dto.response.UserResponse;
 import org.example.expert.domain.user.entity.User;
 import org.example.expert.domain.user.repository.UserRepository;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
@@ -29,7 +31,7 @@ public class ManagerService {
     private final TodoRepository todoRepository;
 
     @Transactional
-    public ManagerSaveResponse saveManager(AuthUser authUser, long todoId, ManagerSaveRequest managerSaveRequest) {
+    public CommonResponse<ManagerSaveResponse> saveManager(AuthUser authUser, long todoId, ManagerSaveRequest managerSaveRequest) {
         // 일정을 만든 유저
         User user = User.fromAuthUser(authUser);
         Todo todo = todoRepository.findById(todoId)
@@ -49,14 +51,14 @@ public class ManagerService {
         Manager newManagerUser = new Manager(managerUser, todo);
         Manager savedManagerUser = managerRepository.save(newManagerUser);
 
-        return new ManagerSaveResponse(
+        return new CommonResponse<>(HttpStatus.OK, new ManagerSaveResponse(
                 savedManagerUser.getId(),
-                new UserResponse(managerUser.getId(), managerUser.getEmail())
+                new UserResponse(managerUser.getId(), managerUser.getEmail()))
         );
     }
 
     @Transactional(readOnly = true)
-    public List<ManagerResponse> getManagers(long todoId) {
+    public CommonResponse<List<ManagerResponse>> getManagers(long todoId) {
         Todo todo = todoRepository.findById(todoId)
                 .orElseThrow(() -> new NullPointerException("Todo not found"));
 
@@ -70,11 +72,11 @@ public class ManagerService {
                     new UserResponse(user.getId(), user.getEmail())
             ));
         }
-        return dtoList;
+        return new CommonResponse<>(HttpStatus.OK, dtoList);
     }
 
     @Transactional
-    public void deleteManager(long userId, long todoId, long managerId) {
+    public CommonResponse<Void> deleteManager(long userId, long todoId, long managerId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new InvalidRequestException("User not found"));
 
@@ -93,5 +95,7 @@ public class ManagerService {
         }
 
         managerRepository.delete(manager);
+
+        return new CommonResponse<>(HttpStatus.NO_CONTENT, null);
     }
 }

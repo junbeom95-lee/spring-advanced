@@ -1,12 +1,14 @@
 package org.example.expert.domain.user.service;
 
 import lombok.RequiredArgsConstructor;
+import org.example.expert.common.dto.CommonResponse;
 import org.example.expert.common.util.passworencoder.PasswordEncoder;
 import org.example.expert.common.exception.InvalidRequestException;
 import org.example.expert.domain.user.dto.request.UserChangePasswordRequest;
 import org.example.expert.domain.user.dto.response.UserResponse;
 import org.example.expert.domain.user.entity.User;
 import org.example.expert.domain.user.repository.UserRepository;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,13 +20,14 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
 
     @Transactional(readOnly = true)
-    public UserResponse getUser(long userId) {
+    public CommonResponse<UserResponse> getUser(long userId) {
         User user = userRepository.findById(userId).orElseThrow(() -> new InvalidRequestException("User not found"));
-        return new UserResponse(user.getId(), user.getEmail());
+
+        return new CommonResponse<>(HttpStatus.OK, new UserResponse(user.getId(), user.getEmail()));
     }
 
     @Transactional
-    public void changePassword(long userId, UserChangePasswordRequest userChangePasswordRequest) {
+    public CommonResponse<Void> changePassword(long userId, UserChangePasswordRequest userChangePasswordRequest) {
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new InvalidRequestException("User not found"));
@@ -38,5 +41,7 @@ public class UserService {
         }
 
         user.changePassword(passwordEncoder.encode(userChangePasswordRequest.getNewPassword()));
+
+        return new CommonResponse<>(HttpStatus.NO_CONTENT, null);
     }
 }

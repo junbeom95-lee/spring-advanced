@@ -1,6 +1,7 @@
 package org.example.expert.domain.todo.service;
 
 import lombok.RequiredArgsConstructor;
+import org.example.expert.common.dto.CommonResponse;
 import org.example.expert.common.util.weather.WeatherClient;
 import org.example.expert.common.dto.AuthUser;
 import org.example.expert.common.exception.InvalidRequestException;
@@ -14,6 +15,7 @@ import org.example.expert.domain.user.entity.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,7 +27,7 @@ public class TodoService {
     private final WeatherClient weatherClient;
 
     @Transactional
-    public TodoSaveResponse saveTodo(AuthUser authUser, TodoSaveRequest todoSaveRequest) {
+    public CommonResponse<TodoSaveResponse> saveTodo(AuthUser authUser, TodoSaveRequest todoSaveRequest) {
         User user = User.fromAuthUser(authUser);
 
         String weather = weatherClient.getTodayWeather();
@@ -38,23 +40,23 @@ public class TodoService {
         );
         Todo savedTodo = todoRepository.save(newTodo);
 
-        return new TodoSaveResponse(
+        return new CommonResponse<>(HttpStatus.OK, new TodoSaveResponse(
                 savedTodo.getId(),
                 savedTodo.getTitle(),
                 savedTodo.getContents(),
                 weather,
-                new UserResponse(user.getId(), user.getEmail())
+                new UserResponse(user.getId(), user.getEmail()))
         );
     }
 
     @Transactional(readOnly = true)
-    public Page<TodoResponse> getTodos(int page, int size) {
+    public CommonResponse<Page<TodoResponse>> getTodos(int page, int size) {
 
         Pageable pageable = PageRequest.of(page - 1, size);
 
         Page<Todo> todos = todoRepository.findAllByOrderByModifiedAtDesc(pageable);
 
-        return todos.map(todo -> new TodoResponse(
+        Page<TodoResponse> todoDtos = todos.map(todo -> new TodoResponse(
                 todo.getId(),
                 todo.getTitle(),
                 todo.getContents(),
@@ -63,23 +65,25 @@ public class TodoService {
                 todo.getCreatedAt(),
                 todo.getModifiedAt()
         ));
+
+        return new CommonResponse<>(HttpStatus.OK, todoDtos);
     }
 
     @Transactional(readOnly = true)
-    public TodoResponse getTodo(long todoId) {
+    public CommonResponse<TodoResponse> getTodo(long todoId) {
         Todo todo = todoRepository.findByIdWithUser(todoId)
                 .orElseThrow(() -> new InvalidRequestException("Todo not found"));
 
         User user = todo.getUser();
 
-        return new TodoResponse(
+        return new CommonResponse<>(HttpStatus.OK, new TodoResponse(
                 todo.getId(),
                 todo.getTitle(),
                 todo.getContents(),
                 todo.getWeather(),
                 new UserResponse(user.getId(), user.getEmail()),
                 todo.getCreatedAt(),
-                todo.getModifiedAt()
+                todo.getModifiedAt())
         );
     }
 }

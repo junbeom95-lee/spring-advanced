@@ -1,6 +1,7 @@
 package org.example.expert.domain.comment.service;
 
 import lombok.RequiredArgsConstructor;
+import org.example.expert.common.dto.CommonResponse;
 import org.example.expert.domain.comment.dto.request.CommentSaveRequest;
 import org.example.expert.domain.comment.dto.response.CommentResponse;
 import org.example.expert.domain.comment.dto.response.CommentSaveResponse;
@@ -12,6 +13,7 @@ import org.example.expert.domain.todo.entity.Todo;
 import org.example.expert.domain.todo.repository.TodoRepository;
 import org.example.expert.domain.user.dto.response.UserResponse;
 import org.example.expert.domain.user.entity.User;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,7 +28,7 @@ public class CommentService {
     private final CommentRepository commentRepository;
 
     @Transactional
-    public CommentSaveResponse saveComment(AuthUser authUser, long todoId, CommentSaveRequest commentSaveRequest) {
+    public CommonResponse<CommentSaveResponse> saveComment(AuthUser authUser, long todoId, CommentSaveRequest commentSaveRequest) {
 
         Todo todo = todoRepository.findById(todoId).orElseThrow(() ->
                 new InvalidRequestException("Todo not found"));
@@ -41,15 +43,15 @@ public class CommentService {
 
         Comment savedComment = commentRepository.save(newComment);
 
-        return new CommentSaveResponse(
+        return new CommonResponse<>(HttpStatus.OK, new CommentSaveResponse(
                 savedComment.getId(),
                 savedComment.getContents(),
-                new UserResponse(user.getId(), user.getEmail())
+                new UserResponse(user.getId(), user.getEmail()))
         );
     }
 
     @Transactional(readOnly = true)
-    public List<CommentResponse> getComments(long todoId) {
+    public CommonResponse<List<CommentResponse>> getComments(long todoId) {
 
         List<Comment> commentList = commentRepository.findByTodoIdWithUser(todoId);
 
@@ -64,6 +66,7 @@ public class CommentService {
             );
             dtoList.add(dto);
         }
-        return dtoList;
+
+        return new CommonResponse<>(HttpStatus.OK, dtoList);
     }
 }

@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.expert.common.annotation.Auth;
 import org.example.expert.common.dto.AuthUser;
+import org.example.expert.common.dto.CommonResponse;
 import org.example.expert.domain.todo.dto.request.TodoSaveRequest;
 import org.example.expert.domain.todo.dto.response.TodoResponse;
 import org.example.expert.domain.todo.dto.response.TodoSaveResponse;
@@ -19,21 +20,29 @@ public class TodoController {
     private final TodoService todoService;
 
     @PostMapping("/todos")
-    public ResponseEntity<TodoSaveResponse> saveTodo(
+    public ResponseEntity<CommonResponse<TodoSaveResponse>> saveTodo(
             @Auth AuthUser authUser,
             @Valid @RequestBody TodoSaveRequest todoSaveRequest
     ) {
-        return ResponseEntity.ok(todoService.saveTodo(authUser, todoSaveRequest));
+
+        CommonResponse<TodoSaveResponse> result = todoService.saveTodo(authUser, todoSaveRequest);
+
+        return ResponseEntity.status(result.getStatus()).body(result);
     }
 
     @GetMapping("/todos")
-    public ResponseEntity<Page<TodoResponse>> getTodos(@RequestParam(defaultValue = "1") int page,
-                                                       @RequestParam(defaultValue = "10") int size) {
-        return ResponseEntity.ok(todoService.getTodos(page, size));
+    public ResponseEntity<CommonResponse<Page<TodoResponse>>> getTodos(@RequestParam(defaultValue = "1") int page,
+                                                                       @RequestParam(defaultValue = "10") int size) {
+        CommonResponse<Page<TodoResponse>> result = todoService.getTodos(page, size);
+
+        return ResponseEntity.status(result.getStatus()).body(result);
     }
 
     @GetMapping("/todos/{todoId}")
-    public ResponseEntity<TodoResponse> getTodo(@PathVariable long todoId) {
-        return ResponseEntity.ok(todoService.getTodo(todoId));
+    public ResponseEntity<CommonResponse<TodoResponse>> getTodo(@PathVariable long todoId) {
+
+        CommonResponse<TodoResponse> result = todoService.getTodo(todoId);
+
+        return ResponseEntity.status(result.getStatus()).body(result);
     }
 }

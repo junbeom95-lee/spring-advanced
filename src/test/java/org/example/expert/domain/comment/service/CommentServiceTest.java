@@ -1,5 +1,6 @@
 package org.example.expert.domain.comment.service;
 
+import org.example.expert.common.dto.CommonResponse;
 import org.example.expert.domain.comment.dto.request.CommentSaveRequest;
 import org.example.expert.domain.comment.dto.response.CommentSaveResponse;
 import org.example.expert.domain.comment.entity.Comment;
@@ -65,9 +66,9 @@ class CommentServiceTest {
         given(commentRepository.save(any())).willReturn(comment);
 
         // when
-        CommentSaveResponse result = commentService.saveComment(authUser, todoId, request);
+        CommonResponse<CommentSaveResponse> result = commentService.saveComment(authUser, todoId, request);
 
         // then
-        assertNotNull(result);
+        assertNotNull(result.getContent());
     }
 }

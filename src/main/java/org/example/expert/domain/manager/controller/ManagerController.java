@@ -3,6 +3,7 @@ package org.example.expert.domain.manager.controller;
 import io.jsonwebtoken.Claims;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.example.expert.common.dto.CommonResponse;
 import org.example.expert.common.util.jwt.JwtUtil;
 import org.example.expert.common.annotation.Auth;
 import org.example.expert.common.dto.AuthUser;
@@ -23,27 +24,36 @@ public class ManagerController {
     private final JwtUtil jwtUtil;
 
     @PostMapping("/todos/{todoId}/managers")
-    public ResponseEntity<ManagerSaveResponse> saveManager(
+    public ResponseEntity<CommonResponse<ManagerSaveResponse>> saveManager(
             @Auth AuthUser authUser,
             @PathVariable long todoId,
             @Valid @RequestBody ManagerSaveRequest managerSaveRequest
     ) {
-        return ResponseEntity.ok(managerService.saveManager(authUser, todoId, managerSaveRequest));
+        CommonResponse<ManagerSaveResponse> result = managerService.saveManager(authUser, todoId, managerSaveRequest);
+
+        return ResponseEntity.status(result.getStatus()).body(result);
     }
 
     @GetMapping("/todos/{todoId}/managers")
-    public ResponseEntity<List<ManagerResponse>> getMembers(@PathVariable long todoId) {
-        return ResponseEntity.ok(managerService.getManagers(todoId));
+    public ResponseEntity<CommonResponse<List<ManagerResponse>>> getMembers(@PathVariable long todoId) {
+
+        CommonResponse<List<ManagerResponse>> result = managerService.getManagers(todoId);
+
+        return ResponseEntity.status(result.getStatus()).body(result);
     }
 
     @DeleteMapping("/todos/{todoId}/managers/{managerId}")
-    public void deleteManager(
+    public ResponseEntity<CommonResponse<Void>> deleteManager(
             @RequestHeader("Authorization") String bearerToken,
             @PathVariable long todoId,
             @PathVariable long managerId
     ) {
         Claims claims = jwtUtil.extractClaims(bearerToken.substring(7));
+
         long userId = Long.parseLong(claims.getSubject());
-        managerService.deleteManager(userId, todoId, managerId);
+
+        CommonResponse<Void> result = managerService.deleteManager(userId, todoId, managerId);
+
+        return ResponseEntity.status(result.getStatus()).body(result);
     }
 }
