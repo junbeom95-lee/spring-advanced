@@ -60,7 +60,7 @@ public class ManagerService {
     @Transactional(readOnly = true)
     public CommonResponse<List<ManagerResponse>> getManagers(long todoId) {
         Todo todo = todoRepository.findById(todoId)
-                .orElseThrow(() -> new NullPointerException("Todo not found"));
+                .orElseThrow(() -> new InvalidRequestException("Todo not found"));
 
         List<Manager> managerList = managerRepository.findByTodoIdWithUser(todo.getId());
 
