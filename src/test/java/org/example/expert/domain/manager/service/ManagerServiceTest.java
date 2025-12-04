@@ -2,11 +2,11 @@ package org.example.expert.domain.manager.service;
 
 import org.example.expert.common.dto.AuthUser;
 import org.example.expert.common.dto.CommonResponse;
-import org.example.expert.common.exception.InvalidRequestException;
 import org.example.expert.domain.manager.dto.request.ManagerSaveRequest;
 import org.example.expert.domain.manager.dto.response.ManagerResponse;
 import org.example.expert.domain.manager.dto.response.ManagerSaveResponse;
 import org.example.expert.domain.manager.entity.Manager;
+import org.example.expert.domain.manager.exception.ManagerException;
 import org.example.expert.domain.manager.repository.ManagerRepository;
 import org.example.expert.domain.todo.entity.Todo;
 import org.example.expert.domain.todo.repository.TodoRepository;
@@ -66,7 +66,7 @@ class ManagerServiceTest {
         given(todoRepository.findById(todoId)).willReturn(Optional.of(todo));
 
         // when & then
-        InvalidRequestException exception = assertThrows(InvalidRequestException.class, () ->
+        ManagerException exception = assertThrows(ManagerException.class, () ->
             managerService.saveManager(authUser, todoId, managerSaveRequest)
         );
 
