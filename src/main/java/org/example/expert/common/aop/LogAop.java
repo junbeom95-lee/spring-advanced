@@ -1,4 +1,4 @@
-package org.example.expert.config;
+package org.example.expert.common.aop;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -53,12 +53,11 @@ public class LogAop {
 
             log.error("[AOP] :: cause : {}, message : {}", e.getCause(), e.getMessage());
 
-        } finally {
-
-            log.info("[AOP] :: result : {}", getResponseBodyString(result));
-
-            return result;
         }
+
+        log.info("[AOP] :: result : {}", getResponseBodyString(result));
+
+        return result;
     }
 
     private void getRequestBodyLogging(ProceedingJoinPoint joinPoint) throws JsonProcessingException {

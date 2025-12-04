@@ -1,7 +1,7 @@
-package org.example.expert.client;
+package org.example.expert.common.util.weather;
 
-import org.example.expert.client.dto.WeatherDto;
-import org.example.expert.domain.common.exception.ServerException;
+import org.example.expert.common.util.weather.dto.WeatherDto;
+import org.example.expert.common.exception.ServerException;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

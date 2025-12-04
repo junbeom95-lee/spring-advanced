@@ -1,11 +1,11 @@
-package org.example.expert.config;
+package org.example.expert.common.util.passworencoder;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(SpringExtension.class)
 class PasswordEncoderTest {
@@ -25,4 +25,5 @@ class PasswordEncoderTest {
         // then
         assertTrue(matches);
     }
+
 }
