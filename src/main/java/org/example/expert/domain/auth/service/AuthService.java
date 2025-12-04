@@ -2,6 +2,7 @@ package org.example.expert.domain.auth.service;
 
 import lombok.RequiredArgsConstructor;
 import org.example.expert.common.dto.CommonResponse;
+import org.example.expert.common.enums.ExceptionCode;
 import org.example.expert.common.util.jwt.JwtUtil;
 import org.example.expert.common.util.passworencoder.PasswordEncoder;
 import org.example.expert.domain.auth.dto.request.SigninRequest;
@@ -9,7 +10,6 @@ import org.example.expert.domain.auth.dto.request.SignupRequest;
 import org.example.expert.domain.auth.dto.response.SigninResponse;
 import org.example.expert.domain.auth.dto.response.SignupResponse;
 import org.example.expert.domain.auth.exception.AuthException;
-import org.example.expert.common.exception.InvalidRequestException;
 import org.example.expert.domain.user.entity.User;
 import org.example.expert.domain.user.enums.UserRole;
 import org.example.expert.domain.user.repository.UserRepository;
@@ -28,9 +28,7 @@ public class AuthService {
     @Transactional
     public CommonResponse<SignupResponse> signup(SignupRequest signupRequest) {
 
-        if (userRepository.existsByEmail(signupRequest.getEmail())) {
-            throw new InvalidRequestException("이미 존재하는 이메일입니다.");
-        }
+        if (userRepository.existsByEmail(signupRequest.getEmail())) throw new AuthException(ExceptionCode.EXIST_EMAIL);
 
         String encodedPassword = passwordEncoder.encode(signupRequest.getPassword());
 
@@ -52,12 +50,10 @@ public class AuthService {
     public CommonResponse<SigninResponse> signin(SigninRequest signinRequest) {
 
         User user = userRepository.findByEmail(signinRequest.getEmail()).orElseThrow(
-                () -> new InvalidRequestException("가입되지 않은 유저입니다."));
+                () -> new AuthException(ExceptionCode.NOT_FOUND_SIGNUP_USER));
 
         // 로그인 시 이메일과 비밀번호가 일치하지 않을 경우 401을 반환합니다.
-        if (!passwordEncoder.matches(signinRequest.getPassword(), user.getPassword())) {
-            throw new AuthException("잘못된 비밀번호입니다.");
-        }
+        if (!passwordEncoder.matches(signinRequest.getPassword(), user.getPassword())) throw new AuthException(ExceptionCode.MISS_MATCHES_PASSWORD);
 
         String bearerToken = jwtUtil.createToken(user.getId(), user.getEmail(), user.getUserRole());
 

@@ -1,8 +1,11 @@
 package org.example.expert.domain.auth.exception;
 
-public class AuthException extends RuntimeException {
+import org.example.expert.common.enums.ExceptionCode;
+import org.example.expert.common.exception.ServerException;
 
-    public AuthException(String message) {
-        super(message);
+public class AuthException extends ServerException {
+
+    public AuthException(ExceptionCode exceptionCode) {
+        super(exceptionCode);
     }
 }
