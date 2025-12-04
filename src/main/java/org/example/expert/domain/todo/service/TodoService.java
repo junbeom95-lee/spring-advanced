@@ -11,7 +11,9 @@ import org.example.expert.domain.todo.entity.Todo;
 import org.example.expert.domain.todo.repository.TodoRepository;
 import org.example.expert.domain.user.dto.response.UserResponse;
 import org.example.expert.domain.user.entity.User;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -48,21 +50,21 @@ public class TodoService {
     }
 
     @Transactional(readOnly = true)
-    public List<TodoResponse> getTodos() {
+    public Page<TodoResponse> getTodos(int page, int size) {
 
-        Sort sort = Sort.by("modifiedAt").descending();
+        Pageable pageable = PageRequest.of(page - 1, size);
 
-        List<Todo> todos = todoRepository.findAllByOrderByModifiedAtDesc(sort);
+        Page<Todo> todos = todoRepository.findAllByOrderByModifiedAtDesc(pageable);
 
-        return todos.stream().map(todo -> new TodoResponse(
+        return todos.map(todo -> new TodoResponse(
                 todo.getId(),
                 todo.getTitle(),
                 todo.getContents(),
                 todo.getWeather(),
                 new UserResponse(todo.getUser().getId(), todo.getUser().getEmail()),
                 todo.getCreatedAt(),
-                todo.getModifiedAt())
-        ).toList();
+                todo.getModifiedAt()
+        ));
     }
 
     @Transactional(readOnly = true)
