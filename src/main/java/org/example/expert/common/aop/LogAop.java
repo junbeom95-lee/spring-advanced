@@ -10,7 +10,6 @@ import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
 import java.time.LocalDateTime;
 
 @Slf4j
@@ -27,7 +26,7 @@ public class LogAop {
     //어떻게 : 로깅
 
     @Around("execution(* org.example.expert.domain.*.controller.*AdminController.*(..))")
-    public Object executionLog(ProceedingJoinPoint joinPoint) throws IOException {
+    public Object executionLog(ProceedingJoinPoint joinPoint) throws Throwable {
 
         //요청한 사용자의 ID <- Filter에서 SetAttribute 값
         Long userId = (Long) request.getAttribute("userId");
@@ -36,24 +35,14 @@ public class LogAop {
         LocalDateTime now = LocalDateTime.now();
 
         //API 요청 URL
-        String uri = request.getRequestURI();
+        String url = request.getRequestURL().toString();
 
-        log.info("[AOP] :: userId : {}, uri : {}, time : {}", userId, uri,  now);
+        log.info("[AOP] :: userId : {}, uri : {}, time : {}", userId, url,  now);
 
         //요청 본문
         getRequestBodyLogging(joinPoint);
 
-        Object result = null;
-
-        try {
-
-            result = joinPoint.proceed();    //메서드 실행
-
-        } catch (Throwable e) {
-
-            log.error("[AOP] :: cause : {}, message : {}", e.getCause(), e.getMessage());
-
-        }
+        Object result = joinPoint.proceed();    //메서드 실행
 
         log.info("[AOP] :: result : {}", getResponseBodyString(result));
 
