@@ -13,7 +13,7 @@ public enum ExceptionCode {
     INVALID_AUTH_PARAMETER(HttpStatus.BAD_REQUEST, "@Auth와 AuthUser 타입은 함께 사용되어야 합니다."),
     NOT_FOUND_USER(HttpStatus.BAD_REQUEST, "User not found"),
     NOT_MATCH_OLD_PASSWORD_NEW_PASSWORD(HttpStatus.BAD_REQUEST, "새 비밀번호는 기존 비밀번호와 같을 수 없습니다."),
-    NOT_FOUND_USER_ROLE(HttpStatus.BAD_REQUEST,"유효하지 않은 UerRole"),
+    NOT_FOUND_USER_ROLE(HttpStatus.BAD_REQUEST,"유효하지 않은 UserRole"),
 
     //manager
     MISS_MATCHES_MANAGER(HttpStatus.BAD_REQUEST,"일정을 생성한 유저만 담당자를 지정할 수 있습니다."),
